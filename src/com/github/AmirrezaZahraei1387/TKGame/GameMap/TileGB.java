@@ -15,4 +15,9 @@ public class TileGB {
         this.id = id;
         this.index = index;
     }
+
+    @Override
+    public String toString() {
+        return "TileGB(id=%d, index=%d)".formatted(id, index);
+    }
 }

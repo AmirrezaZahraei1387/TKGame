@@ -19,10 +19,16 @@ public interface MapData {
     /*
     retrieves the tile contained in the ith row,
     jth column and lth layer of the map.
-    should return null in case there is not such
-    element.
+    should return null in case the layer does not exist or
+    the tile contains no element.
      */
     TileGB getTile(int i, int j, int l);
+
+    /*
+    reset the tile in the specified position
+    meaning it no longer contain a tile.
+     */
+    void resetTile(int i, int j, int l);
 
     /*
     sets the tile in the specified position to

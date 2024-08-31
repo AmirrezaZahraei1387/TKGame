@@ -115,7 +115,7 @@ public class GameMap extends JComponent {
     // the returned value's coordinate space is the postFix of
     // each translation function.
 
-    private Point translateMap(Point point){
+    public Point translateMap(Point point){
         Point pos = new Point();
 
         pos.x = point.x / tileSize;
@@ -136,7 +136,7 @@ public class GameMap extends JComponent {
         return pos;
     }
 
-    private Point translateWorld(Point pos){
+    public Point translateWorld(Point pos){
         return new Point(pos.x * tileSize, pos.y * tileSize);
     }
 
@@ -160,7 +160,7 @@ public class GameMap extends JComponent {
         return new Rectangle(o.x, o.y, w, h);
     }
 
-    private Rectangle translateBoundWorld(Rectangle worldBound){
+    public Rectangle translateBoundWorld(Rectangle worldBound){
 
         Point o = translateWorld(worldBound.getLocation());
 
@@ -223,7 +223,7 @@ public class GameMap extends JComponent {
                         ListenerDraw lis = listeners[tile.id];
                         if (lis != null) {
                             AffineTransform prev = g2d.getTransform();
-                            g2d.translate(i * tileSize, j * tileSize);
+                            g2d.translate(j * tileSize, i * tileSize);
                             lis.drawTile(tile.index, tileSize, g2d);
                             g2d.setTransform(prev);
                         }

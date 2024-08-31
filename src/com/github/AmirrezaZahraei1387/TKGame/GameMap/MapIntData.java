@@ -23,6 +23,11 @@ public class MapIntData implements MapData{
     }
 
     @Override
+    public void resetTile(int i, int j,  int l) {
+        tiles[i][j][l] = null;
+    }
+
+    @Override
     public void setTile(int i, int j, int l, TileGB t) {
         tiles[i][j][l] = t;
     }
