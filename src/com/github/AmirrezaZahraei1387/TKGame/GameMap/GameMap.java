@@ -34,7 +34,7 @@ public class GameMap extends JComponent {
         prev_cam = this.cam.getState();
         currB = null;
 
-        timer = new Timer(5, _ -> {
+        timer = new Timer(5, e -> {
 
             CameraHandlerState curr_state = cam.getState();
 

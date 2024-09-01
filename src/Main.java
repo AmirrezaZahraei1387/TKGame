@@ -21,7 +21,7 @@ import javax.swing.WindowConstants;
 
 class DrawSprite implements ListenerDraw, KeyListener {
 
-    BufferedImage im_ = ImageIO.read(new File("data/grass.jpg"));
+    BufferedImage im_ = ImageIO.read(new File("data/circle.jpg"));
     TileGroup tiles;
 
 
@@ -98,7 +98,7 @@ class DrawSprite implements ListenerDraw, KeyListener {
 
 class BackGround implements ListenerDraw{
 
-    BufferedImage img = ImageIO.read(new File("data/circle.png"));
+    BufferedImage img = ImageIO.read(new File("data/grass.jpg"));
 
     TileGroup tiles;
 
@@ -124,7 +124,6 @@ public class Main {
         int tileSize = 30;
         Dimension worldSize = new Dimension(worldDim.width * tileSize, worldDim.height * tileSize);
         Dimension screenSize = new Dimension(400, 400);
-        int LAYERS = 2;
         int LISTENER_COUNT = 2;
 
         // setting up camera handler
@@ -135,7 +134,7 @@ public class Main {
 
         // setting up the gameMap
         GameMap map = new GameMap(
-                new MapIntData(worldDim.width, worldDim.height, LAYERS),
+                new MapIntData(worldDim.width, worldDim.height),
                 cam,
                 tileSize,
                 LISTENER_COUNT);
@@ -168,6 +167,6 @@ public class Main {
 
         map.start();
 
-        new Timer(50, _ -> cam.setViewSize(frame.getSize())).start();
+        new Timer(50, e -> cam.setViewSize(frame.getSize())).start();
     }
 }
