@@ -17,7 +17,7 @@ public class GameMap extends JComponent {
     private final ListenerDraw[] listeners;
 
     MapData map;
-    private int tileSize;
+    private final int tileSize;
 
     private final CameraHandler cam;
     private CameraHandlerState prev_cam;
@@ -34,13 +34,13 @@ public class GameMap extends JComponent {
         prev_cam = this.cam.getState();
         currB = null;
 
-        timer = new Timer(5, e -> {
+        timer = new Timer(5, _ -> {
 
             CameraHandlerState curr_state = cam.getState();
 
             if(!curr_state.equals(prev_cam)){
                 prev_cam = curr_state;
-                againPaint(1);
+                againPaint();
             }
 
         });
@@ -86,7 +86,6 @@ public class GameMap extends JComponent {
 
     @Override
     public void paintComponent(Graphics _g2d){
-
         Graphics2D g2d = (Graphics2D) (_g2d);
         cam.setGraphics(g2d);
 
@@ -100,13 +99,20 @@ public class GameMap extends JComponent {
     do not directly use the repaint.
     instead use the following defined methods.
      */
-    void againPaint(long tm){
-        this.repaint(tm);
+
+    /*
+    it is very crucial to use paintImmediately instead of
+    the repaint function. Swing merges calls to the repaint
+    in a short time frame, and this might result in undesired
+    behavior in painting.
+     */
+    void againPaint(){
+        paintImmediately(new Rectangle(cam.getViewSize()));
     }
 
-    void againPaint(long tm, int i, int j, int w, int h){
+    void againPaint(int i, int j, int w, int h){
         Rectangle rect = translateBoundWorld(new Rectangle(i, j, w, h));
-        this.repaint(tm, rect.x, rect.y, rect.width, rect.height);
+        paintImmediately(rect.x, rect.y, rect.width, rect.height);
     }
 
     // translation functions
@@ -160,14 +166,14 @@ public class GameMap extends JComponent {
         return new Rectangle(o.x, o.y, w, h);
     }
 
-    public Rectangle translateBoundWorld(Rectangle worldBound){
+    public Rectangle translateBoundWorld(Rectangle mapBound){
 
-        Point o = translateWorld(worldBound.getLocation());
+        Point o = translateWorld(mapBound.getLocation());
 
-        int w = worldBound.width * tileSize;
-        int h = worldBound.height * tileSize;
+        int w = mapBound.width * tileSize;
+        int h = mapBound.height * tileSize;
 
-        Dimension dim = map.getDim();
+        Dimension dim = cam.getWorldSize();
 
         if(o.x + w > dim.width)
             w = dim.width - o.x;
@@ -204,13 +210,13 @@ public class GameMap extends JComponent {
     only draw those tiles that are in the chunk.
      */
     private void paintMap(Graphics2D g2d, Rectangle chunk){
-
         Rectangle vis = inViewTiles(chunk, cam.getBounds());
 
         drawTiles(g2d, vis);
     }
 
     private void drawTiles(Graphics2D g2d, Rectangle chunk){
+
         for(int i = chunk.x; i < chunk.x + chunk.width; ++i)
             for(int j = chunk.y; j < chunk.y + chunk.height; ++j){
 
@@ -223,7 +229,7 @@ public class GameMap extends JComponent {
                         ListenerDraw lis = listeners[tile.id];
                         if (lis != null) {
                             AffineTransform prev = g2d.getTransform();
-                            g2d.translate(j * tileSize, i * tileSize);
+                            g2d.translate(i * tileSize, j * tileSize);
                             lis.drawTile(tile.index, tileSize, g2d);
                             g2d.setTransform(prev);
                         }

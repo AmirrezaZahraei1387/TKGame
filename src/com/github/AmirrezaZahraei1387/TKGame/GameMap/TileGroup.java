@@ -53,7 +53,7 @@ public class TileGroup {
 
         if(new_i >= 0 && new_j >= 0)
             if(new_i < w && new_j < h)
-                if(new_i + bound.width < w && new_j + bound.height < h){
+                if(new_i + bound.width <= w && new_j + bound.height <= h){
                     bound.x = new_i;
                     bound.y = new_j;
 
@@ -95,25 +95,26 @@ public class TileGroup {
     }
 
     public void set(int i, int j, TileGB t){
+
         if(i < 0 || j < 0 || i >= bound.width || j >= bound.height)
             throw new IndexOutOfBoundsException("the specified index is out of the bounds of this TileGroup");
 
         map.map.setTile(i + bound.x, j + bound.y, layer, t);
     }
 
-    public void repaint(int tm, int i, int j){
+    public void repaint(int i, int j){
         if(i < 0 || j < 0 || i >= bound.width || j >= bound.height)
             throw new IndexOutOfBoundsException("the specified index is out of the bounds of this TileGroup");
-        map.againPaint(tm,i + bound.x, j + bound.y, 1, 1);
+        map.againPaint(i + bound.x, j + bound.y, 1, 1);
     }
 
-    public void repaint(int tm, int i, int j, int w, int h){
+    public void repaint(int i, int j, int w, int h){
         if(i < 0 || j < 0 || i >= bound.width || j >= bound.height)
             throw new IndexOutOfBoundsException("the specified index is out of the bounds of this TileGroup");
-        map.againPaint(tm,i + bound.x, j + bound.y, w, h);
+        map.againPaint(i + bound.x, j + bound.y, w, h);
     }
 
-    public void repaint(int tm){
-        map.againPaint(tm, bound.x, bound.y, bound.width, bound.height);
+    public void repaint(){
+        map.againPaint(bound.x, bound.y, bound.width, bound.height);
     }
 }
