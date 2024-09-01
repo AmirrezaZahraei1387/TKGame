@@ -120,7 +120,7 @@ class BackGround implements ListenerDraw{
 public class Main {
     public static void main(String[] args) throws IOException {
         // setting up the dimensions
-        Dimension worldDim = new Dimension(30, 30);
+        Dimension worldDim = new Dimension(90, 90);
         int tileSize = 30;
         Dimension worldSize = new Dimension(worldDim.width * tileSize, worldDim.height * tileSize);
         Dimension screenSize = new Dimension(400, 400);
