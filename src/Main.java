@@ -1,5 +1,7 @@
 import com.github.AmirrezaZahraei1387.TKGame.Camera.CameraHandler;
 import com.github.AmirrezaZahraei1387.TKGame.Camera.StaticCamera;
+import com.github.AmirrezaZahraei1387.TKGame.Character.TankBase;
+import com.github.AmirrezaZahraei1387.TKGame.Character.Velocity;
 import com.github.AmirrezaZahraei1387.TKGame.GameMap.GameMap;
 import com.github.AmirrezaZahraei1387.TKGame.GameMap.ListenerDraw;
 import com.github.AmirrezaZahraei1387.TKGame.GameMap.MapIntData;
@@ -31,7 +33,7 @@ class BackGround implements ListenerDraw{
         // setting all tiles.
         for(int i = 0; i < tiles.getDim().width; ++i)
             for(int j = 0; j < tiles.getDim().height; ++j)
-                tiles.set(i, j, new TileGB((byte) 1, i * tiles.getDim().width + j));
+                tiles.set(i, j, new TileGB((byte) 0, i * tiles.getDim().width + j));
     }
 
     @Override
@@ -70,7 +72,12 @@ public class Main {
                         worldDim.width, worldDim.height),
                         (byte) 0));
         map.submitListener(BACKGROUND, backGround);
-
+        int SPRITE = 1;
+        TankBase tank = new TankBase(
+                new TileGroup(new Rectangle(4, 20, 4, 1), (byte) 1),
+                new Velocity(5, 100)
+        );
+        map.submitListener(SPRITE, tank);
 
         // window
         JFrame frame = new JFrame();
@@ -78,6 +85,7 @@ public class Main {
         frame.add(map);
         frame.pack();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.addKeyListener(tank);
         frame.setVisible(true);
 
         map.start();

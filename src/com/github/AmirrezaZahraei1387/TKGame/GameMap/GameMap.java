@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.util.HashSet;
 import javax.swing.JComponent;
 import javax.swing.Timer;
 
@@ -24,6 +25,7 @@ public class GameMap extends JComponent {
 
     private final Timer timer;
     private Rectangle currB;
+    private HashSet<Integer> noList;
 
     public GameMap(MapData map, CameraHandler cam, int tileSize, int count){
         this.map = map;
@@ -40,7 +42,7 @@ public class GameMap extends JComponent {
 
             if(!curr_state.equals(prev_cam)){
                 prev_cam = curr_state;
-                againPaint();
+                againPaint(noList);
             }
 
         });
@@ -92,7 +94,7 @@ public class GameMap extends JComponent {
         if(currB == null)
             paintMap(g2d);
         else
-            paintMap(g2d, currB);
+            paintMap(g2d, currB, noList);
     }
 
     /*
@@ -106,11 +108,13 @@ public class GameMap extends JComponent {
     in a short time frame, and this might result in undesired
     behavior in painting.
      */
-    void againPaint(){
+    void againPaint(HashSet<Integer> noList){
+        this.noList = noList;
         paintImmediately(new Rectangle(cam.getViewSize()));
     }
 
-    void againPaint(int i, int j, int w, int h){
+    void againPaint(int i, int j, int w, int h, HashSet<Integer> noList){
+        this.noList = noList;
         Rectangle rect = translateBoundWorld(new Rectangle(i, j, w, h));
         paintImmediately(rect.x, rect.y, rect.width, rect.height);
     }
@@ -201,7 +205,7 @@ public class GameMap extends JComponent {
 
         Rectangle mapBound = translateBoundMap(cam.getBounds());
 
-        drawTiles(g2d, mapBound);
+        drawTiles(g2d, mapBound, null);
 
     }
 
@@ -209,13 +213,25 @@ public class GameMap extends JComponent {
     /*
     only draw those tiles that are in the chunk.
      */
-    private void paintMap(Graphics2D g2d, Rectangle chunk){
+    private void paintMap(Graphics2D g2d, Rectangle chunk, HashSet<Integer> noList){
         Rectangle vis = inViewTiles(chunk, cam.getBounds());
 
-        drawTiles(g2d, vis);
+        drawTiles(g2d, vis, noList);
     }
 
-    private void drawTiles(Graphics2D g2d, Rectangle chunk){
+    private void drawTiles(Graphics2D g2d, Rectangle chunk, HashSet<Integer> noList){
+
+        if(noList != null)
+            for(Integer g: noList){
+                for(int i = chunk.x; i < chunk.x + chunk.width; ++i)
+                    for(int j = chunk.y; j < chunk.y + chunk.height; ++j){
+
+                        TileGB tile = map.getTile(i, j, g);
+
+                        paintSingleTile(g2d, i, j, tile);
+
+                    }
+            }
 
         for(int i = chunk.x; i < chunk.x + chunk.width; ++i)
             for(int j = chunk.y; j < chunk.y + chunk.height; ++j){
@@ -225,18 +241,26 @@ public class GameMap extends JComponent {
                 for(int k = 0; k < l_count; ++k){
                     TileGB tile = map.getTile(i, j, k);
 
-                    if(tile != null) {
-                        ListenerDraw lis = listeners[tile.id];
-                        if (lis != null) {
-                            AffineTransform prev = g2d.getTransform();
-                            g2d.translate(i * tileSize, j * tileSize);
-                            lis.drawTile(tile.index, tileSize, g2d);
-                            g2d.setTransform(prev);
-                        }
-                    }
+                    if(noList != null)
+                        if(noList.contains(k))
+                            continue;
+
+                    paintSingleTile(g2d, i, j, tile);
 
                 }
 
             }
+    }
+
+    private void paintSingleTile(Graphics2D g2d, int i, int j, TileGB tile) {
+        if(tile != null) {
+            ListenerDraw lis = listeners[tile.id];
+            if (lis != null) {
+                AffineTransform prev = g2d.getTransform();
+                g2d.translate(i * tileSize, j * tileSize);
+                lis.drawTile(tile.index, tileSize, g2d);
+                g2d.setTransform(prev);
+            }
+        }
     }
 }

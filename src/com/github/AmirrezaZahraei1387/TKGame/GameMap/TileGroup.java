@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.HashSet;
 
 public class TileGroup {
     private final Rectangle bound;
@@ -165,16 +166,28 @@ public class TileGroup {
     public void repaint(int i, int j){
         if(i < 0 || j < 0 || i >= bound.width || j >= bound.height)
             throw new IndexOutOfBoundsException("the specified index is out of the bounds of this TileGroup");
-        map.againPaint(i + bound.x, j + bound.y, 1, 1);
+
+
+        map.againPaint(i + bound.x, j + bound.y, 1, 1, getUnderlyingLayers());
     }
 
     public void repaint(int i, int j, int w, int h){
         if(i < 0 || j < 0 || i >= bound.width || j >= bound.height)
             throw new IndexOutOfBoundsException("the specified index is out of the bounds of this TileGroup");
-        map.againPaint(i + bound.x, j + bound.y, w, h);
+        map.againPaint(i + bound.x, j + bound.y, w, h, getUnderlyingLayers());
     }
 
     public void repaint(){
-        map.againPaint(bound.x, bound.y, bound.width, bound.height);
+        map.againPaint(bound.x, bound.y, bound.width, bound.height, getUnderlyingLayers());
+    }
+
+    private HashSet<Integer> getUnderlyingLayers(){
+        HashSet<Integer> noList = new HashSet<>();
+
+        for(int k = layer - 1; k >= 0; --k){
+            noList.add(k);
+        }
+
+        return noList;
     }
 }
