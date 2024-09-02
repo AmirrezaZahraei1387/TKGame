@@ -8,7 +8,7 @@ import java.awt.geom.Point2D;
 
 public class TileGroup {
     private final Rectangle bound;
-    private final byte layer;
+    public final byte layer;
 
     public static GameMap map;
 
@@ -72,13 +72,13 @@ public class TileGroup {
     the point p defined in the tileGroup space.
      */
 
-    public boolean rotate(int deg, Point2D p){
+    public boolean rotate(int deg, int x, int y){
         if(deg % 90 != 0)
             return false;
         AffineTransform t = AffineTransform.getRotateInstance(
                 Math.toRadians(deg),
-                bound.x + p.getX(),
-                bound.y + p.getY());
+                bound.x + x,
+                bound.y + y);
 
         Point p1 = bound.getLocation();
         Point p2 = new Point(p1.x + bound.width, p1.y);
