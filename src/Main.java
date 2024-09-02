@@ -9,8 +9,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -19,72 +18,6 @@ import javax.swing.JFrame;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
-class DrawSprite implements ListenerDraw, KeyListener {
-
-    BufferedImage im_ = ImageIO.read(new File("data/circle.jpg"));
-    TileGroup tiles;
-
-
-    byte dir = 0;
-
-    public DrawSprite(TileGroup tiles) throws IOException {
-        this.tiles = tiles;
-
-        // setting all tiles.
-        setAll();
-
-    }
-
-    @Override
-    public void drawTile(int i, int tileSize, Graphics2D g2d) {
-        g2d.drawImage(im_, 0, 0, tileSize, tileSize, null);
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-
-    }
-
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-
-        switch (e.getKeyCode()){
-            case KeyEvent.VK_W:
-                tiles.reset();
-                tiles.repaint();
-                tiles.rotate(90,
-                        new Point(
-                        tiles.getDim().width / 2,
-                        tiles.getDim().height / 2));
-                setAll();
-                tiles.repaint();
-
-                break;
-        }
-
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-
-    }
-
-    void move(int i, int j){
-        tiles.reset();
-        tiles.repaint();
-        tiles.advance(i, j);
-        setAll();
-        tiles.repaint();
-    }
-
-    void setAll(){
-        for(int i = 0; i < tiles.getDim().width; ++i)
-            for(int j = 0; j < tiles.getDim().height; ++j) {
-                tiles.set(i, j, new TileGB((byte) 0, i * tiles.getDim().width + j));
-            }
-    }
-}
 
 class BackGround implements ListenerDraw{
 
@@ -131,20 +64,13 @@ public class Main {
         TileGroup.setGameMap(map);
 
         // setting Draw Listeners
-        int BACKGROUND = 1;
+        int BACKGROUND = 0;
         BackGround backGround = new BackGround(
                 new TileGroup(new Rectangle(0,0,
                         worldDim.width, worldDim.height),
                         (byte) 0));
         map.submitListener(BACKGROUND, backGround);
 
-        int OBSTACLE = 0;
-        DrawSprite obstacle = new DrawSprite(
-                new TileGroup(
-                new Rectangle(1, 2,
-                4, 6),
-                (byte) 1));
-        map.submitListener(OBSTACLE, obstacle);
 
         // window
         JFrame frame = new JFrame();
@@ -152,7 +78,6 @@ public class Main {
         frame.add(map);
         frame.pack();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.addKeyListener(obstacle);
         frame.setVisible(true);
 
         map.start();
