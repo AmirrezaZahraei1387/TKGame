@@ -45,31 +45,21 @@ class DrawSprite implements ListenerDraw, KeyListener {
 
     }
 
+
     @Override
     public void keyPressed(KeyEvent e) {
 
         switch (e.getKeyCode()){
             case KeyEvent.VK_W:
-                if(dir == 0){
-                    move(0, -1);
-                }else if(dir == 1) {
-                    move(1, 0);
-                }else if(dir == 2){
-                    move(0, 1);
-                }else if(dir == 3){
-                    move(-1, 0);
-                }
-                break;
-            case KeyEvent.VK_S:
-                if(dir == 0){
-                    move(0, 1);
-                }else if(dir == 1) {
-                    move(-1, 0);
-                }else if(dir == 2){
-                    move(0, -1);
-                }else if(dir == 3){
-                    move(1, 0);
-                }
+                tiles.reset();
+                tiles.repaint();
+                tiles.rotate(90,
+                        new Point(
+                        tiles.getDim().width / 2,
+                        tiles.getDim().height / 2));
+                setAll();
+                tiles.repaint();
+
                 break;
         }
 
@@ -152,7 +142,7 @@ public class Main {
         DrawSprite obstacle = new DrawSprite(
                 new TileGroup(
                 new Rectangle(1, 2,
-                3, 5),
+                4, 6),
                 (byte) 1));
         map.submitListener(OBSTACLE, obstacle);
 
