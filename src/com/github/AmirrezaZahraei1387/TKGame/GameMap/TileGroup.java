@@ -4,8 +4,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-import java.util.HashSet;
+
 
 public class TileGroup {
     private final Rectangle bound;
@@ -166,28 +165,47 @@ public class TileGroup {
     public void repaint(int i, int j){
         if(i < 0 || j < 0 || i >= bound.width || j >= bound.height)
             throw new IndexOutOfBoundsException("the specified index is out of the bounds of this TileGroup");
-
-
-        map.againPaint(i + bound.x, j + bound.y, 1, 1, getUnderlyingLayers());
+        map.againPaint(i + bound.x, j + bound.y, 1, 1);
     }
 
     public void repaint(int i, int j, int w, int h){
         if(i < 0 || j < 0 || i >= bound.width || j >= bound.height)
             throw new IndexOutOfBoundsException("the specified index is out of the bounds of this TileGroup");
-        map.againPaint(i + bound.x, j + bound.y, w, h, getUnderlyingLayers());
+        map.againPaint(i + bound.x, j + bound.y, w, h);
     }
 
     public void repaint(){
-        map.againPaint(bound.x, bound.y, bound.width, bound.height, getUnderlyingLayers());
+        map.againPaint(bound.x, bound.y, bound.width, bound.height);
     }
 
-    private HashSet<Integer> getUnderlyingLayers(){
-        HashSet<Integer> noList = new HashSet<>();
+    public void resetPainter(){
+        for(int i = 0; i < bound.width; ++i)
+            for(int j = 0; j < bound.height; ++j)
+                set(i, j, new TileGB(GameMap.RESET_DRAWER, 0));
+        repaint();
+        reset();
+    }
 
-        for(int k = layer - 1; k >= 0; --k){
-            noList.add(k);
-        }
+    public void resetPainter(int i, int j, int w, int h){
+        for(int _i = i; _i < i + w; ++_i)
+            for(int _j = j; _j < j + h; ++_j) {
+                set(_i, _j, new TileGB(GameMap.RESET_DRAWER, 0));
+            }
 
-        return noList;
+        repaint(i, j, w, h);
+
+        for(int _i = i; _i < i + w; ++_i)
+            for(int _j = j; _j < j + h; ++_j)
+                reset(_i, _j);
+
+        for(int _i = 0; _i < this.getDim().width; ++_i)
+            for(int _j = 0; _j < this.getDim().height; ++_j)
+                System.out.println(this.indexGroup(_i, _j, this.layer));
+    }
+
+    public void resetPainter(int i, int j){
+        set(i, j, new TileGB(GameMap.RESET_DRAWER, 0));
+        repaint(i, j);
+        reset(i, j);
     }
 }

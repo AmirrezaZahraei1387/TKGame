@@ -9,13 +9,22 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.util.HashSet;
 import javax.swing.JComponent;
 import javax.swing.Timer;
 
 
 public class GameMap extends JComponent {
+    static final byte RESET_DRAWER = 0;
+
+    private static class ResetDrawer implements ListenerDraw{
+        @Override
+        public void drawTile(int i, int tileSize, Graphics2D g2d) {}
+    }
+
     private final ListenerDraw[] listeners;
+    /*
+    listeners[0] is reserved for clearing the window
+     */
 
     MapData map;
     private final int tileSize;
@@ -25,11 +34,12 @@ public class GameMap extends JComponent {
 
     private final Timer timer;
     private Rectangle currB;
-    private HashSet<Integer> noList;
 
+    /*
+    the count must be provided regardless of reserved drawers.
+     */
     public GameMap(MapData map, CameraHandler cam, int tileSize, int count){
         this.map = map;
-        this.listeners = new ListenerDraw[count];
         this.cam = cam;
         this.tileSize = tileSize;
 
@@ -42,10 +52,12 @@ public class GameMap extends JComponent {
 
             if(!curr_state.equals(prev_cam)){
                 prev_cam = curr_state;
-                againPaint(noList);
+                againPaint();
             }
-
         });
+
+        this.listeners = new ListenerDraw[count + 1];
+        submitListener(0, new ResetDrawer());
     }
 
     public int getTileSize(){
@@ -94,7 +106,7 @@ public class GameMap extends JComponent {
         if(currB == null)
             paintMap(g2d);
         else
-            paintMap(g2d, currB, noList);
+            paintMap(g2d, currB);
     }
 
     /*
@@ -108,13 +120,11 @@ public class GameMap extends JComponent {
     in a short time frame, and this might result in undesired
     behavior in painting.
      */
-    void againPaint(HashSet<Integer> noList){
-        this.noList = noList;
+    void againPaint(){
         paintImmediately(new Rectangle(cam.getViewSize()));
     }
 
-    void againPaint(int i, int j, int w, int h, HashSet<Integer> noList){
-        this.noList = noList;
+    void againPaint(int i, int j, int w, int h){
         Rectangle rect = translateBoundWorld(new Rectangle(i, j, w, h));
         paintImmediately(rect.x, rect.y, rect.width, rect.height);
     }
@@ -205,7 +215,7 @@ public class GameMap extends JComponent {
 
         Rectangle mapBound = translateBoundMap(cam.getBounds());
 
-        drawTiles(g2d, mapBound, null);
+        drawTiles(g2d, mapBound);
 
     }
 
@@ -213,25 +223,13 @@ public class GameMap extends JComponent {
     /*
     only draw those tiles that are in the chunk.
      */
-    private void paintMap(Graphics2D g2d, Rectangle chunk, HashSet<Integer> noList){
+    private void paintMap(Graphics2D g2d, Rectangle chunk){
         Rectangle vis = inViewTiles(chunk, cam.getBounds());
 
-        drawTiles(g2d, vis, noList);
+        drawTiles(g2d, vis);
     }
 
-    private void drawTiles(Graphics2D g2d, Rectangle chunk, HashSet<Integer> noList){
-
-        if(noList != null)
-            for(Integer g: noList){
-                for(int i = chunk.x; i < chunk.x + chunk.width; ++i)
-                    for(int j = chunk.y; j < chunk.y + chunk.height; ++j){
-
-                        TileGB tile = map.getTile(i, j, g);
-
-                        paintSingleTile(g2d, i, j, tile);
-
-                    }
-            }
+    private void drawTiles(Graphics2D g2d, Rectangle chunk){
 
         for(int i = chunk.x; i < chunk.x + chunk.width; ++i)
             for(int j = chunk.y; j < chunk.y + chunk.height; ++j){
@@ -240,10 +238,6 @@ public class GameMap extends JComponent {
 
                 for(int k = 0; k < l_count; ++k){
                     TileGB tile = map.getTile(i, j, k);
-
-                    if(noList != null)
-                        if(noList.contains(k))
-                            continue;
 
                     paintSingleTile(g2d, i, j, tile);
 
